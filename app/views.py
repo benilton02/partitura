@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify
-from app.env import  client_id, client_secret, access_token
+from app.env import   access_token
 from uuid import uuid4
 import lyricsgenius
+import app.aws_controller
+
 
 
 bp_app = Blueprint('partitura_endpoint', __name__)
@@ -23,7 +25,8 @@ def list_music(artist_name):
     resp = {
         "transaction": {
             "id": uuid4(),
-            "popularity": data
+            "artist": artist_name,
+            "music": data
         }
     }
 

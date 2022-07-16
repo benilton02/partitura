@@ -1,10 +1,10 @@
 import boto3
-from app.env import secret_access_key, access_key_id 
+from app.env import secret_access_key, access_key_id, region_name_aws 
 
 
 client = boto3.client(
     'dynamodb', 
-    region_name='us-east-1',
+    region_name=region_name_aws,
     aws_access_key_id=access_key_id,
     aws_secret_access_key=secret_access_key)
 

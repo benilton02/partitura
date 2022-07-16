@@ -12,5 +12,5 @@ export FLASK_DEBUG=True
 Development mode
 
 ```sh
-flask run
+python3 run.py
 ```

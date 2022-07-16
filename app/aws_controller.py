@@ -1,6 +1,5 @@
 import logging
 import boto3
-from boto3.dynamodb.conditions import Key
 from app.env import secret_access_key, access_key_id 
 
 client = boto3.client(

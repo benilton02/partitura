@@ -1,6 +1,8 @@
+from ast import Str
 import logging
 import boto3
 from app.env import secret_access_key, access_key_id 
+from datetime import datetime
 
 client = boto3.client(
     'dynamodb', 
@@ -16,27 +18,21 @@ def create_table():
                 TableName='Music',
             KeySchema=[
                 {
-                    'AttributeName': 'transaction_id',
+                    'AttributeName': 'artist',
                     'KeyType': 'HASH' 
                 },
-                {
-                    'AttributeName': 'artist',
-                    'KeyType': 'RANGE' 
-                },
+        
             ],
             AttributeDefinitions=[
                 {
-                    'AttributeName': 'transaction_id',
-                    'AttributeType': 'S'
-                },
-                {
                     'AttributeName': 'artist',
-                    'AttributeType': 'S' 
+                    'AttributeType': 'S'
                 },
             ],
             BillingMode='PAY_PER_REQUEST',
         )
-    
+
+
 def table_name():
     try:
         name = client.list_tables()['TableNames'][0]
@@ -56,35 +52,30 @@ def put(input):
         TableName=name,
         Item={
             'transaction_id': {
-                'S': input.get('transaction_id')
+                'S': input['transaction_id']
             },
             'artist':{
-                'S': input.get('artist')
+                'S': input['artist']
             },
             'music':{
-                'S': ". ".join(input.get('music'))
+                # 'S': ". ".join(input.get('music'))
+                'SS': input['music']
+            },
+            'created_at' : {
+                'S': str(datetime.now())
             }
         }
     )
-
+  
+        
+def get(artist):
+    name = table_name()
+    return client.get_item(
+        TableName=name,
+        Key={
+            'artist': {'S': artist},
+        }
+    )
     
 
-            
-        
-# def get():
-#     name = table_name()
-#     client.get_item(
-#         TableName=name,
-#         Key={
-#             'transaction_id': {
-#                 'S': '5d85e65951e0441a9e57130d418af0ec'
-#             }
-#         }
-        
-#     )
-#     return client.query(
-#         KeyConditionExpression=Key('transaction_id').eq('5d85e65951e0441a9e57130d418af0ec')
-#     )
-
-#     ...
     

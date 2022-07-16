@@ -1,11 +1,12 @@
-from flask import Blueprint, jsonify
+from functools import cache
+from flask import Blueprint, jsonify, request
 from app.env import   access_token
 from uuid import uuid4
 import lyricsgenius
-import app.aws_controller
+import app.aws_controller as aws
 
 
-
+limit=2
 bp_app = Blueprint('partitura_endpoint', __name__)
 genius = lyricsgenius.Genius(access_token)
 
@@ -13,21 +14,26 @@ def configure(app):
     app.register_blueprint(bp_app)
 
 
-@bp_app.route('/list-music/<artist_name>', methods=['GET'])
-def list_music(artist_name):
+@bp_app.route('/musics', methods=['POST'])
+def list_music():
     data = list()
-    genius = lyricsgenius.Genius(access_token)
-    result = genius.search_artist(artist_name, max_songs=10, sort='popularity')  
+    artist = request.args.get('artist')
+    cache = request.args.get('cache') #se não informado retorna None
+    try:
+        result = genius.search_artist(artist, max_songs=limit, sort='popularity')  
+    except:
+        resp = {"error": "API Genius"}
+        return  jsonify(resp), 500
     
     for song in result.songs:
         data.append(song.title)
 
     resp = {
-        "transaction": {
-            "id": uuid4(),
-            "artist": artist_name,
-            "music": data
+        'transaction_id': uuid4().hex,
+        'artist': artist,
+        'music': data
         }
-    }
-
+    
+    aws.put(resp)
     return  jsonify(resp), 200
+

@@ -1,20 +1,91 @@
+import logging
 import boto3
-from app.env import secret_access_key, access_key_id, aws_url
+from boto3.dynamodb.conditions import Key
+from app.env import secret_access_key, access_key_id 
 
- 
-dynamodb_client = boto3.client('dynamodb', 
+client = boto3.client(
+    'dynamodb', 
+    region_name='us-east-1',
     aws_access_key_id=access_key_id,
-    aws_secret_access_key=secret_access_key,
-    # endpoint_url=aws_url
-)
+    aws_secret_access_key=secret_access_key)
 
-table_name = 'Music'
+    
+def create_table():
+    table = table_name()
+    if not table:
+        client.create_table(
+                TableName='Music',
+            KeySchema=[
+                {
+                    'AttributeName': 'transaction_id',
+                    'KeyType': 'HASH' 
+                },
+                {
+                    'AttributeName': 'artist',
+                    'KeyType': 'RANGE' 
+                },
+            ],
+            AttributeDefinitions=[
+                {
+                    'AttributeName': 'transaction_id',
+                    'AttributeType': 'S'
+                },
+                {
+                    'AttributeName': 'artist',
+                    'AttributeType': 'S' 
+                },
+            ],
+            BillingMode='PAY_PER_REQUEST',
+        )
+    
+def table_name():
+    try:
+        name = client.list_tables()['TableNames'][0]
+    
+    except:
+        name = str()
+    
+    finally:
+        print(f'TableName: {name}')
+        return name
+    
+
+def put(input):
+    name = table_name()
+
+    client.put_item(
+        TableName=name,
+        Item={
+            'transaction_id': {
+                'S': input.get('transaction_id')
+            },
+            'artist':{
+                'S': input.get('artist')
+            },
+            'music':{
+                'S': ". ".join(input.get('music'))
+            }
+        }
+    )
+
+    
+
+            
         
-def put():
-    table = dynamodb_client.list_tables()['TableNames']
-    if table:
-        # dynamodb_client.get_item(TableName = table_name, Key = data)
-        # dynamodb_client.put_item(TableName = table_name, Item = data)
-        ...
-    print("No Table!")
+# def get():
+#     name = table_name()
+#     client.get_item(
+#         TableName=name,
+#         Key={
+#             'transaction_id': {
+#                 'S': '5d85e65951e0441a9e57130d418af0ec'
+#             }
+#         }
+        
+#     )
+#     return client.query(
+#         KeyConditionExpression=Key('transaction_id').eq('5d85e65951e0441a9e57130d418af0ec')
+#     )
+
+#     ...
     

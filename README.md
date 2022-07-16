@@ -16,7 +16,6 @@ python3 -m venv venv
 pip install -r requirements.txt
 ```
 
-
 ### Set FLASK variables:
 Development mode
 ```sh

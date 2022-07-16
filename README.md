@@ -1,5 +1,22 @@
 # partitura
 
+### Create a venv
+
+```sh
+python3 -m venv venv
+```
+
+### Activate the venv
+```sh
+. venv/bin/activate
+```
+
+### Install requirements.txt
+```sh
+pip install -r requirements.txt
+```
+
+
 ### Set FLASK variables:
 Development mode
 ```sh

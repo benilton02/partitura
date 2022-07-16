@@ -1,32 +1,30 @@
 # partitura
 
-### Create a venv
+### Dependencies
+- Python ^3.9
+- Docker
+- Docker compose
 
+### Environment variables
+###### Inside app/env.py file 
+GENIUS API variables
 ```sh
-python3 -m venv venv
+os.environ['CLIENT_ID'] = 'DEFINES_CLIENT_ID_HERE'
+os.environ['CLIENT_SECRET'] = 'DEFINES_CLIENT_SECRET_HERE'
+os.environ['ACCESS_TOKEN'] = 'DEFINES_ACCESS_TOKEN_HERE'
 ```
 
-### Activate the venv
+AWS variables
 ```sh
-. venv/bin/activate
+os.environ['ACCESS_KEY_ID'] = 'DEFINES_ACCESS_KEY_ID_HERE'
+os.environ['SECRET_ACCESS_KEY'] = 'DEFINES_SECRET_ACCESS_KEY_HERE'
+os.environ['REGION_NAME']='DEFINES_REGION_NAME_HERE''
+
 ```
 
-### Install requirements.txt
+### How to run in docker
+Run application
 ```sh
-pip install -r requirements.txt
-```
+docker-compose up --build
 
-### Set FLASK variables:
-Development mode
-```sh
-export FLASK_APP=app
-export FLASK_ENV=Development
-export FLASK_DEBUG=True
-```
-
-### Run app:
-Development mode
-
-```sh
-python3 run.py
 ```

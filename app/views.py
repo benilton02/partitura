@@ -11,7 +11,7 @@ from datetime import datetime
 limit=10
 bp_app = Blueprint('partitura_endpoint', __name__)
 genius = lyricsgenius.Genius(access_token)
-redis_con = redis.Redis(host='localhost', port=6379, db=0)
+redis_con = redis.Redis(host='redis', port=6379, db=0)
 
 def configure(app):
     app.register_blueprint(bp_app)
@@ -50,12 +50,6 @@ def get_data_from_redis(artist):
     return resp, 200
 
 
-def get_dynamodb():
-    artist = request.args.get('artist')
-    resp = aws.get(artist)
-    return jsonify(resp), 200
-
-
 def get_musics(artist):
     
     resp = get_data_from_genius(artist)
@@ -82,7 +76,7 @@ def get_data_from_genius(artist):
         data.append(song.title)
 
     resp = {
-        'transaction_id': uuid4().hex,
+        'transaction_id': str(uuid4().hex),
         'artist': artist,
         'music': data,
         'created_at': str(datetime.now())    

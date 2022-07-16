@@ -1,8 +1,6 @@
-from ast import Str
-import logging
 import boto3
 from app.env import secret_access_key, access_key_id 
-from datetime import datetime
+
 
 client = boto3.client(
     'dynamodb', 
@@ -21,11 +19,19 @@ def create_table():
                     'AttributeName': 'artist',
                     'KeyType': 'HASH' 
                 },
+                {
+                    'AttributeName': 'transaction_id',
+                    'KeyType': 'RANGE' 
+                },
         
             ],
             AttributeDefinitions=[
                 {
                     'AttributeName': 'artist',
+                    'AttributeType': 'S'
+                },
+                {
+                    'AttributeName': 'transaction_id',
                     'AttributeType': 'S'
                 },
             ],
@@ -58,11 +64,10 @@ def put(input):
                 'S': input['artist']
             },
             'music':{
-                # 'S': ". ".join(input.get('music'))
                 'SS': input['music']
             },
             'created_at' : {
-                'S': str(datetime.now())
+                'S': input["created_at"]
             }
         }
     )

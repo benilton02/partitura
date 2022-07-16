@@ -1,14 +1,14 @@
-from functools import cache
 from flask import Blueprint, jsonify, request
-from app.env import   access_token
+from app.env import access_token
 from uuid import uuid4
 import lyricsgenius
 import app.aws_controller as aws
 import json
 import redis
+from datetime import datetime
 
 
-limit=3
+limit=10
 bp_app = Blueprint('partitura_endpoint', __name__)
 genius = lyricsgenius.Genius(access_token)
 redis_con = redis.Redis(host='localhost', port=6379, db=0)
@@ -21,32 +21,24 @@ def configure(app):
 def list_music():
     artist = request.args.get('artist')
     cache = request.args.get('cache')
+    cache = json.loads(cache.lower())
 
-    if not cache:
+    resp, status = get_data_from_redis(artist)
 
-        resp, status = get_data_from_redis(artist)
-        if not resp:      
-            resp, status = get_musics(artist)
+    if cache:
+        if resp:      
+            return jsonify(resp), status
+    else:
+        delete_data_from_redis(artist)
 
-        return jsonify(resp), status
+    resp, status = get_musics(artist)
     
-    resp, status = delete_data_from_redis(artist)
     return jsonify(resp), status
-
 
 
 def delete_data_from_redis(artist):
     redis_con.delete(artist)
-    resp = {"msg":"Deleted"}
-    return resp, 200
-
-@bp_app.route('/delete', methods=['DELETE'])
-def delete_data_from_redis():
-    artist = request.args.get('artist')
-    redis_con.delete(artist)
-    resp = {"msg":"Deleted"}
-    return resp, 200
-
+    
 
 def get_data_from_redis(artist):    
     resp = redis_con.get(artist)
@@ -62,18 +54,18 @@ def get_dynamodb():
     artist = request.args.get('artist')
     resp = aws.get(artist)
     return jsonify(resp), 200
-    ...
 
 
 def get_musics(artist):
     
-    resp = get_data_from_genius()
+    resp = get_data_from_genius(artist)
     # cria um registro no dynamodb
     aws.put(resp)
     
     #crira um registro no redis com validade de 7 dias (604800 seg.)
     id = resp['artist']
     redis_con.set(id, json.dumps(resp), ex=604800)
+
     resp, status = get_data_from_redis(artist)
     return resp, 201
     
@@ -92,7 +84,8 @@ def get_data_from_genius(artist):
     resp = {
         'transaction_id': uuid4().hex,
         'artist': artist,
-        'music': data    
+        'music': data,
+        'created_at': str(datetime.now())    
         }
     
     return resp

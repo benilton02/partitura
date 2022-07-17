@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.env import access_token
-from uuid import uuid4
+import uuid
 import lyricsgenius
 import app.aws_controller as aws
 import json
@@ -12,6 +12,7 @@ limit=10
 bp_app = Blueprint('partitura_endpoint', __name__)
 genius = lyricsgenius.Genius(access_token)
 redis_con = redis.Redis(host='redis', port=6379, db=0)
+# redis_con = redis.Redis(host='localhost', port=6379, db=0)
 
 def configure(app):
     app.register_blueprint(bp_app)
@@ -30,9 +31,11 @@ def list_music():
             return jsonify(resp), status
     else:
         delete_data_from_redis(artist)
+    try:
+        resp, status = get_musics(artist)
+    except:
+        return jsonify({"error":"No response from GENIUS API"}), 500
 
-    resp, status = get_musics(artist)
-    
     return jsonify(resp), status
 
 
@@ -53,15 +56,21 @@ def get_data_from_redis(artist):
 def get_musics(artist):
     
     resp = get_data_from_genius(artist)
-    # cria um registro no dynamodb
-    aws.put(resp)
     
-    #crira um registro no redis com validade de 7 dias (604800 seg.)
-    id = resp['artist']
-    redis_con.set(id, json.dumps(resp), ex=604800)
+    try:
+        # cria um registro no dynamodb
+        aws.put(resp)
 
-    resp, status = get_data_from_redis(artist)
-    return resp, 201
+        #crira um registro no redis com validade de 7 dias (604800 seg.)
+        id = resp['artist']
+        redis_con.set(id, json.dumps(resp), ex=50)
+
+        resp, status = get_data_from_redis(artist)
+    
+    except:
+        return {"error":"No response from GENIUS API"}, 500
+    
+
     
 
 def get_data_from_genius(artist):
@@ -69,14 +78,14 @@ def get_data_from_genius(artist):
     try:
         result = genius.search_artist(artist, max_songs=limit, sort='popularity')  
     except:
-        resp = {"error": "API Genius"}
-        return  resp, 500
+        resp = {"error":"No response from GENIUS API"}
+        return  resp
     
     for song in result.songs:
         data.append(song.title)
 
     resp = {
-        'transaction_id': str(uuid4().hex),
+        'transaction_id': str(uuid.uuid4()),
         'artist': artist,
         'music': data,
         'created_at': str(datetime.now())    

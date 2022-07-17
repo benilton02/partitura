@@ -1,14 +1,14 @@
 import os
 
 # Set environment GENIUS API variables
-os.environ['CLIENT_ID'] = 'DEFINES_CLIENT_ID_HERE'
-os.environ['CLIENT_SECRET'] = 'DEFINES_CLIENT_SECRET_HERE'
-os.environ['ACCESS_TOKEN'] = 'DEFINES_ACCESS_TOKEN_HERE'
+os.environ['CLIENT_ID'] = '3jNdL2XOru9orzsFoPiSL6lILAUYPkcRAi1e7AOfwePzkCWj7FDGO4g7p3XjXEr3'
+os.environ['CLIENT_SECRET'] = 'ZHmP29rn3M79dugOmZDsJtr7wPxUTId6_s7ULSWsMviHUVL2TNwmkjguQflWUvGarjAdyde49n_r9GL-_S-BBw'
+os.environ['ACCESS_TOKEN'] = '7lMxyGzINLkTON4PlCt4RPx0s8IJd35DCIICNlJVdnO8SdiZVRSjzTqvSaHb7Jdl'
 
 # Set environment AWS variables
-os.environ['ACCESS_KEY_ID'] = 'DEFINES_ACCESS_KEY_ID_HERE'
-os.environ['SECRET_ACCESS_KEY'] = 'DEFINES_SECRET_ACCESS_KEY_HERE'
-os.environ['REGION_NAME']='DEFINES_REGION_NAME_HERE'
+os.environ['ACCESS_KEY_ID'] = 'AKIAZHVWYLSKZQXGCZOB'
+os.environ['SECRET_ACCESS_KEY'] = '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'
+os.environ['REGION_NAME']='us-east-1'
 
 # Get environment GENIUS API variables
 client_id = os.getenv('CLIENT_ID')

@@ -63,7 +63,7 @@ def get_musics(artist):
 
         #criar um registro no redis com validade de 7 dias (604800 seg.)
         id = resp['artist']
-        redis_con.set(id, json.dumps(resp), ex=50)
+        redis_con.set(id, json.dumps(resp), ex=604800)
 
         resp, status = get_data_from_redis(artist)
 

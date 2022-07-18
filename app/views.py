@@ -63,9 +63,11 @@ def get_musics(artist):
 
         #criar um registro no redis com validade de 7 dias (604800 seg.)
         id = resp['artist']
-        redis_con.set(id, json.dumps(resp), ex=604800)
+        redis_con.set(id, json.dumps(resp), ex=50)
 
         resp, status = get_data_from_redis(artist)
+
+        return resp, 201
     
     except:
         return {"error":"No response from GENIUS API"}, 500
